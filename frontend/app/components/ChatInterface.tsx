@@ -1,58 +1,58 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Send, Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from "react";
+import { Send, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Message {
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
 }
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMessage = { role: 'user', content: input };
+    const userMessage = { role: "user", content: input };
     setMessages([...messages, userMessage]);
-    setInput('');
+    setInput("");
     setLoading(true);
 
     try {
-      const response = await fetch('/api/documents/ask', {
-        method: 'POST',
+      const response = await fetch("/api/documents/ask", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ query: input }),
       });
-      
+
       const data = await response.json();
       const assistantMessage = {
-        role: 'assistant',
+        role: "assistant",
         content: data.answer,
       };
-      
-      setMessages(msgs => [...msgs, assistantMessage]);
+
+      setMessages((msgs) => [...msgs, assistantMessage]);
     } catch (error) {
-      console.error('Error getting response:', error);
+      console.error("Error getting response:", error);
       const errorMessage = {
-        role: 'assistant',
-        content: 'Sorry, I encountered an error processing your request.',
+        role: "assistant",
+        content: "Sorry, I encountered an error processing your request.",
       };
-      setMessages(msgs => [...msgs, errorMessage]);
+      setMessages((msgs) => [...msgs, errorMessage]);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col h-[600px] w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg">
+    <div className="flex flex-col h-[600px] w-full max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg transition-colors">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <AnimatePresence>
           {messages.map((message, index) => (
@@ -61,13 +61,15 @@ export default function ChatInterface() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${
+                message.role === "user" ? "justify-end" : "justify-start"
+              }`}
             >
               <div
                 className={`max-w-[80%] p-3 rounded-lg ${
-                  message.role === 'user'
-                    ? 'bg-blue-500 text-white rounded-br-none'
-                    : 'bg-gray-100 text-gray-800 rounded-bl-none'
+                  message.role === "user"
+                    ? "bg-blue-500 text-white rounded-br-none"
+                    : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-bl-none"
                 }`}
               >
                 {message.content}
@@ -80,30 +82,30 @@ export default function ChatInterface() {
               animate={{ opacity: 1, y: 0 }}
               className="flex justify-start"
             >
-              <div className="bg-gray-100 p-3 rounded-lg rounded-bl-none">
-                <Loader2 className="w-4 h-4 animate-spin" />
+              <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg rounded-bl-none">
+                <Loader2 className="w-4 h-4 animate-spin dark:text-gray-100" />
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-      
+
       <form
         onSubmit={handleSubmit}
-        className="border-t p-4 flex items-center gap-2"
+        className="border-t dark:border-gray-700 p-4 flex items-center gap-2"
       >
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your message..."
-          className="flex-1 px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 px-4 py-2 border dark:border-gray-700 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 transition-colors"
           disabled={loading}
         />
         <button
           type="submit"
           disabled={loading || !input.trim()}
-          className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <Send className="w-5 h-5" />
         </button>
