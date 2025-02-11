@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Upload, Loader2, File } from "lucide-react";
 import { motion } from "framer-motion";
+import { NEXT_PUBLIC_API_BASE_URL } from "@/app/config";
 
 export default function DocumentUpload() {
   const [file, setFile] = useState<File | null>(null);
@@ -44,10 +45,19 @@ export default function DocumentUpload() {
     setUploading(true);
 
     try {
-      const response = await fetch("/api/documents/upload", {
+      const response = await fetch(NEXT_PUBLIC_API_BASE_URL + "/upload/", {
         method: "POST",
         body: formData,
+        // credentials: 'include'
       });
+
+      if(!response.ok) {
+        const errorText = await response.text(); // Get text of error response
+        throw new Error(`Upload failed with status ${response.status}: ${errorText}`);
+      }
+
+      const data = await response.json(); // Try to parse JSON
+      console.log("Upload response data:", data); // Log successful response data
 
       if (!response.ok) throw new Error("Upload failed");
 

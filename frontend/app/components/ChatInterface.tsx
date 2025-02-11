@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Send, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { NEXT_PUBLIC_API_BASE_URL } from "@/app/config";
 
 interface Message {
   role: "user" | "assistant";
@@ -24,7 +25,7 @@ export default function ChatInterface() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/documents/ask", {
+      const response = await fetch(NEXT_PUBLIC_API_BASE_URL + "/ask/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
