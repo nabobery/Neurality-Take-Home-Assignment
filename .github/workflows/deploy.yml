@@ -5,7 +5,7 @@ on:
     branches: ["main", "feat/deploy"]
 
 env:
-  REGISTRY: ghcr.io  
+  REGISTRY: ghcr.io
   IMAGE_BACKEND: ghcr.io/nabobery/ragchatbot-backend
   IMAGE_FRONTEND: ghcr.io/nabobery/ragchatbot-frontend
 
@@ -14,21 +14,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Log in to GHCR
-      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login $REGISTRY -u ${{ github.actor }} --password-stdin
+      - name: Login to GHCR
+        run: |
+          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-    - name: Build and push backend
-      run: |
-        docker build -t $IMAGE_BACKEND:latest ./backend
-        docker push $IMAGE_BACKEND:latest
+      - name: Build and push backend
+        run: |
+          docker build -t $IMAGE_BACKEND:latest ./backend
+          docker push $IMAGE_BACKEND:latest
 
-    - name: Build and push frontend
-      run: |
-        docker build -t $IMAGE_FRONTEND:latest ./frontend
-        docker push $IMAGE_FRONTEND:latest
+      - name: Build and push frontend
+        run: |
+          docker build -t $IMAGE_FRONTEND:latest ./frontend
+          docker push $IMAGE_FRONTEND:latest
 
-    - name: Trigger Sevalla Deployment
-      run: |
-        curl -X POST ${{ secrets.SEVALLA_WEBHOOK_URL }}
+      - name: Trigger Sevalla Deployment
+        run: |
+          curl -X POST ${{ secrets.SEVALLA_WEBHOOK_URL }}
