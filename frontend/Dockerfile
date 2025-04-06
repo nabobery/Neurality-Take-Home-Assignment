@@ -31,8 +31,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
-# Copy next.config.js if it exists
-COPY --from=builder --chown=nextjs:nodejs /app/next.config.js ./next.config.js
 
 # Expose the port Next.js runs on
 EXPOSE 3000
