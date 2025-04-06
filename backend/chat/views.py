@@ -5,7 +5,8 @@ from rest_framework.response import Response
 from .models import Document, TextChunk
 from .services.document_processor import DocumentProcessor
 from .services.embedding_service import EmbeddingService
-from .services.qa_service import QAService
+# from .services.qa_service import QAService
+from .services.advanced_qa_service import AdvancedQAService
 from django.conf import settings
 from .serializers import DocumentSerializer
 
@@ -14,7 +15,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
     serializer_class = DocumentSerializer
     document_processor = DocumentProcessor()
     embedding_service = EmbeddingService()
-    qa_service = QAService(embedding_service)
+    # qa_service = QAService(embedding_service)
 
     @action(detail=False, methods=['POST'])
     def upload(self, request):
@@ -50,13 +51,36 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
         return Response({'message': 'Document processed successfully'}, status=status.HTTP_201_CREATED)
 
+    # @action(detail=False, methods=['POST'])
+    # def ask(self, request):
+    #     query = request.data.get('query')
+    #     if not query:
+    #         return Response({'error': 'No query provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+    #     answer = self.qa_service.get_answer(query)
+    #     return Response({'answer': answer})
+    
     @action(detail=False, methods=['POST'])
     def ask(self, request):
-        query = request.data.get('query')
+        query = request.data.get("query", "")
         if not query:
             return Response({'error': 'No query provided'}, status=status.HTTP_400_BAD_REQUEST)
-
-        answer = self.qa_service.get_answer(query)
-        return Response({'answer': answer})
-    
-    
+        
+        # Retrieve all text chunks from the database
+        # (In a real scenario, you might only load chunks relevant to the documents in question)
+        # texts = list(TextChunk.objects.values_list("content", flat=True))
+        text_chunks = list(TextChunk.objects.all())
+        
+        # Initialize the embedding service and Advanced QA Service
+        embedding_service = EmbeddingService()
+        advanced_qa_service = AdvancedQAService(embedding_service=embedding_service, text_chunks=text_chunks)
+        
+        # Get recent chat history if needed (e.g., last 5 messages stored in the session)
+        chat_memory = request.session.get("chat_history", "")
+        
+        try:
+            answer = advanced_qa_service.get_answer(query, chat_memory)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        return Response({"answer": answer})

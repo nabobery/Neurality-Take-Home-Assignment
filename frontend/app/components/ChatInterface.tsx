@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Send, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactMarkdown from "react-markdown";
 import { NEXT_PUBLIC_API_BASE_URL } from "@/app/config";
 
 interface Message {
@@ -19,32 +20,53 @@ export default function ChatInterface() {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMessage = { role: "user", content: input };
-    setMessages([...messages, userMessage]);
+    const userMessage = { role: "user" as const, content: input };
+    const currentMessages = [...messages, userMessage];
+    setMessages(currentMessages);
     setInput("");
     setLoading(true);
 
     try {
+      // const chatHistory = currentMessages
+      //   .filter((msg) => msg.role === "assistant")
+      //   .map((msg) => msg.content)
+      //   .join("\n\n");
+
       const response = await fetch(NEXT_PUBLIC_API_BASE_URL + "/ask/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ query: input }),
+        body: JSON.stringify({
+          query: input,
+        }),
       });
+
+      if (!response.ok) {
+        const errorData = await response
+          .json()
+          .catch(() => ({ detail: "Failed to parse error response." }));
+        throw new Error(
+          errorData.detail || `HTTP error! status: ${response.status}`
+        );
+      }
 
       const data = await response.json();
       const assistantMessage = {
-        role: "assistant",
-        content: data.answer,
+        role: "assistant" as const,
+        content: data.answer || "No answer received.",
       };
 
       setMessages((msgs) => [...msgs, assistantMessage]);
     } catch (error) {
       console.error("Error getting response:", error);
+      const errorMessageContent =
+        error instanceof Error
+          ? error.message
+          : "Sorry, I encountered an error processing your request.";
       const errorMessage = {
-        role: "assistant",
-        content: "Sorry, I encountered an error processing your request.",
+        role: "assistant" as const,
+        content: `Error: ${errorMessageContent}`,
       };
       setMessages((msgs) => [...msgs, errorMessage]);
     } finally {
@@ -67,13 +89,29 @@ export default function ChatInterface() {
               }`}
             >
               <div
-                className={`max-w-[80%] p-3 rounded-lg ${
+                className={`prose dark:prose-invert max-w-[80%] p-3 rounded-lg ${
                   message.role === "user"
                     ? "bg-blue-500 text-white rounded-br-none"
                     : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-bl-none"
                 }`}
               >
-                {message.content}
+                {message.role === "assistant" ? (
+                  <ReactMarkdown
+                    components={{
+                      a: (props) => (
+                        <a
+                          {...props}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        />
+                      ),
+                    }}
+                  >
+                    {message.content}
+                  </ReactMarkdown>
+                ) : (
+                  message.content
+                )}
               </div>
             </motion.div>
           ))}
