@@ -105,7 +105,8 @@ GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY', '')
 
 # CORS configuration - allow specific origins
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000'
+    # 'http://localhost:3000'
+    'https://rag-chatbot-zeta.vercel.app/'
 ]
 
 # CORS configuration 

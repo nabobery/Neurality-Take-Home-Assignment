@@ -2,7 +2,7 @@ name: Deploy Backend to Sevalla
 
 on:
   push:
-    branches: ["main", "feat/deploy"] # Trigger only on pushes to the main branch
+    branches: ["main"] # Trigger only on pushes to the main branch
     paths:
       - 'backend/**'          # Trigger if anything changes in the backend directory
       - '.github/workflows/deploy-backend.yml' # Trigger if this workflow file changes
