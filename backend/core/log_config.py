@@ -29,9 +29,9 @@ class LoggerSetup:
     def _setup_logger(cls, name: str, level: int) -> logging.Logger:
         """Sets up the logger configuration."""
         # Ensure the logs directory exists
-        log_dir = os.path.join(settings.BASE_DIR, 'logs')
-        os.makedirs(log_dir, exist_ok=True)
-        log_file_path = os.path.join(log_dir, 'service.log')
+        # log_dir = os.path.join(settings.BASE_DIR, 'logs')
+        # os.makedirs(log_dir, exist_ok=True)
+        # log_file_path = os.path.join(log_dir, 'service.log')
 
         # Create logger
         logger = logging.getLogger(name)
@@ -40,16 +40,16 @@ class LoggerSetup:
         # Prevent adding handlers multiple times if logger already exists with handlers
         if not logger.handlers:
             # Create handlers (file and console)
-            file_handler = logging.FileHandler(log_file_path)
+            # file_handler = logging.FileHandler(log_file_path)
             stream_handler = logging.StreamHandler()
 
             # Create formatter and set it for both handlers
             formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-            file_handler.setFormatter(formatter)
+            # file_handler.setFormatter(formatter)
             stream_handler.setFormatter(formatter)
 
             # Add handlers to the logger
-            logger.addHandler(file_handler)
+            # logger.addHandler(file_handler)
             logger.addHandler(stream_handler)
 
         return logger
