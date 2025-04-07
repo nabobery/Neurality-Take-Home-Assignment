@@ -1,0 +1,20 @@
+name: Deploy Frontend to Vercel
+
+on:
+  push:
+    branches: ["main"] # Trigger only on pushes to the main branch
+    paths:
+      - 'frontend/**'          # Trigger if anything changes in the frontend directory
+      - 'vercel.json'          # Trigger if vercel config changes (adjust path if not at root)
+      - '.github/workflows/deploy-frontend.yml' # Trigger if this workflow file changes
+
+jobs:
+  trigger-vercel-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel Deployment Hook
+        run: |
+          echo "Triggering Vercel deployment for frontend..."
+          # Add any necessary headers or payload if your hook requires them
+          curl -X POST ${{ secrets.VERCEL_DEPLOY_HOOK }}
+          echo "Vercel deploy hook triggered."
